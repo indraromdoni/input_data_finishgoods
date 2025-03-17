@@ -42,6 +42,18 @@ def update_data():
     peta_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=2)
     print(peta_data)
 
+def postgre_patch():
+    conn = psycopg2.connect(host="192.168.25.208", 
+                        port=5436, 
+                        database="finish_goods", 
+                        user="postgres",
+                        password="Postgre@sql1")
+
+    cur = conn.cursor()
+    cmd = "SELECT * FROM balance_stock_ingot ORDER BY no DESC LIMIT 100"
+    res = cur.execute(cmd)
+    data = cur.fetchall()
+
 def main():
     app.run(host='0.0.0.0', port=5000, debug=True)
 
