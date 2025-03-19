@@ -28,8 +28,14 @@ def update_data():
     print("\r")
 
     print("Update peta!")
-    peta_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=2, usecols="A", header=None).ffill(axis=1)[5:9]
-    peta_dict = peta_data.to_dict()
-    print(peta_dict)
+    pt_col = ["A:C", "E:G", "J:L", "N:P", "S:U", "W:Y", "AB:AD", "AF:AH", "AK:AM"]
+    row_from = [0, 5, 10, 15, 20, 25, 30]
+    row_to = [4, 9, 14, 19, 24, 29, 34]
+    for i in pt_col:
+        for k in zip(row_from, row_to):
+            peta_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=2, usecols=i, header=None).ffill(axis=1)[k[0]:k[1]]
+            peta_dict = peta_data.to_dict()
+            cmd3 = f"UPDATE peta_finish_goods SET charging_no=?, bundle=?, nama_produk=? WHERE lokasi=?;"
+            print(peta_dict)
 
 update_data()

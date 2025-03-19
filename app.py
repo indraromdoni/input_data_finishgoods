@@ -31,18 +31,37 @@ def upload_file():
     '''
 def update_data():
     print("Updating data!")
+    print("\r")
+    print("Update balance!")
     balance_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=0)
     balance_dict = balance_data.to_dict()
-    print(balance_dict)
+    for i in balance_dict['BegBal']:
+        cmd1 = f"UPDATE balance_stock_ingot SET begbal={balance_dict['BegBal'][i]}, incoming={balance_dict['Incoming'][i]}, delivery={balance_dict['Delivery'][i]}, qty_stock={balance_dict['Qty. Stock'][i]}, mapi={balance_dict['MAPI'][i]}, jti={balance_dict['JTI'][i]} WHERE nama_produk='{balance_dict['Nama Produk'][i]}';"
+        print(cmd1)
+        postgre_patch(cmd1)
+    print("\r")
 
-    delivery_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=1)
-    delivery_dict = delivery_data.to_dict()
-    print(delivery_dict)
+    print("Update schedule!")
+    customer_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=1, usecols=(0,))
+    customer_dict = customer_data.to_dict()
+    tgl_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=1, usecols='K:AO')
+    tgl_data.fillna(0)
+    tgl_dict = tgl_data.to_dict()
+    kete_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=1, usecols='AP')
+    kete_data.fillna(0)
+    kete_dict = kete_data.to_dict()
+    for cus in customer_dict['Customer ']:
+        for tgl in tgl_dict.keys():
+            if tgl_dict[tgl][cus] != 0:
+                cmd2 = f"INSERT INTO schedule_delivery(customer, tgl, qty, remarks) VALUES ('{customer_dict['Customer '][cus]}', TO_DATE('{tgl}','dd-mm-yyyy'), {tgl_dict[tgl][cus]}, '{kete_dict['Keterangan'][cus]}');"
+                print(cmd2)
+                postgre_patch(cmd2)
+    print("\r")
 
     peta_data = pd.read_excel("uploads\\Data Finish Goods.xlsx", sheet_name=2)
     print(peta_data)
 
-def postgre_patch():
+def postgre_patch(cmd: str):
     conn = psycopg2.connect(host="192.168.25.208", 
                         port=5436, 
                         database="finish_goods", 
@@ -50,9 +69,10 @@ def postgre_patch():
                         password="Postgre@sql1")
 
     cur = conn.cursor()
-    cmd = "SELECT * FROM balance_stock_ingot ORDER BY no DESC LIMIT 100"
     res = cur.execute(cmd)
-    data = cur.fetchall()
+    conn.commit()
+    cur.close()
+    conn.close()
 
 def main():
     app.run(host='0.0.0.0', port=5000, debug=True)
