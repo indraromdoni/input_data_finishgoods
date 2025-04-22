@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, flash, redirect, url_for, send_from_directory
+from flask import Flask, render_template, Response, request, flash, redirect, url_for, send_from_directory, send_file
 from werkzeug.utils import secure_filename
 import psycopg2
 import pandas as pd
@@ -36,7 +36,10 @@ def upload_file():
 @app.route('/download', methods=['GET', 'POST'])
 def download_file():
     print("Download File")
-    return send_from_directory(app.root_path, "uploads\Data Finish Goods.xlsx")
+    #return send_from_directory(app.root_path, "uploads\\Data Finish Goods.xlsx")
+    loc = "".join((app.root_path, "\\uploads\\Data Finish Goods.xlsx"))
+    print(loc)
+    return send_file(loc)
 
 def update_data():
     print("Updating data!")
