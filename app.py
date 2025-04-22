@@ -1,7 +1,8 @@
-from flask import Flask, render_template, Response, request, flash, redirect, url_for
+from flask import Flask, render_template, Response, request, flash, redirect, url_for, send_from_directory
 from werkzeug.utils import secure_filename
 import psycopg2
 import pandas as pd
+import os
 
 upload_folder = "uploads"
 allowed_file = {'xlsx', 'xls'}
@@ -27,8 +28,16 @@ def upload_file():
     <form method=post enctype=multipart/form-data>
       <input type=file name=file>
       <input type=submit value=Upload>
-    </form>
+    </form><br>
+    <a href="download">
+        <button>Download excel template</button>
+    </a>
     '''
+@app.route('/download', methods=['GET', 'POST'])
+def download_file():
+    print("Download File")
+    return send_from_directory(app.root_path, "uploads\Data Finish Goods.xlsx")
+
 def update_data():
     print("Updating data!")
     print("\r")
